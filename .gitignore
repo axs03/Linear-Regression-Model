@@ -163,4 +163,6 @@ cython_debug/
 
 # private excel data file
 stacks_data.xlsx
+stacks_data_2.xlsx
 findings.docx
+TOTALSA.xlsx

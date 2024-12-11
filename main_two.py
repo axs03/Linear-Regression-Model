@@ -1,51 +1,64 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import regression_model as rm
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import StandardScaler
 
 if "__main__" == __name__:
     # loading data
-    data = pd.read_excel("stacks_data.xlsx")
+    data = pd.read_excel("stacks_data_2.xlsx")
 
-    # converting to datetime and then into minutes after midnight
-    data['Quarter-Hour'] = pd.to_datetime(data['Quarter-Hour'], format='%H:%M %p')
-    data['Minutes'] = data['Quarter-Hour'].dt.hour * 60 + data['Quarter-Hour'].dt.minute
-    
-    features = ['Minutes']  # can add more variables here
+    # Use Weekly Gross Sale as the feature and Monthly Gross Sale as the target
+    features = ['Weekly Gross Sales']
     x = data[features]
-    y = pd.to_numeric(data['Net Sales'], errors='coerce')
+    y = pd.to_numeric(data['Monthly Gross Sales'], errors='coerce')
+    
+    # Normalize the features
+    scaler = StandardScaler()
+    x_scaled = scaler.fit_transform(x)
     
     # split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x_scaled, y, test_size=0.5, random_state=42)
     
     # train the model
     model = LinearRegression()
-    model.fit(X_train, y_train)
-    
-    # predictions
-    y_pred_train = model.predict(X_train)
-    y_pred_test = model.predict(X_test)
-    
-    # metrics
-    train_mse = mean_squared_error(y_train, y_pred_train)
-    test_mse = mean_squared_error(y_test, y_pred_test)
-    train_r2 = r2_score(y_train, y_pred_train)
-    test_r2 = r2_score(y_test, y_pred_test)
-    
-    print(f"After training")
-    print(f"Train MSE: {train_mse:.3f}")
-    print(f"Test MSE: {test_mse:.3f}")
-    print(f"Train R-squared: {train_r2:.3f}")
-    print(f"Test R-squared: {test_r2:.3f}\n")
+    model.fit(x_train, y_train)
 
-    # plot the data
-    plt.scatter(x['Minutes'], y, label='Actual', color='blue')
-    plt.plot(x['Minutes'], model.predict(x), label='Predicted', color='red')
-    plt.xlabel('Day Minutes since Midnight')
-    plt.ylabel('Net Sales')
+    # predictions
+    y_pred_test = model.predict(x_test)
+
+    # Get beta0 (intercept) and beta1 (coefficient)
+    beta0 = model.intercept_
+    beta1 = model.coef_[0]
+
+    # Calculate SSE (Sum of Squared Errors) for test set
+    sse = np.sum((y_test - y_pred_test) ** 2)
+
+    # Calculate SST (Total Sum of Squares)
+    sst = np.sum((y_test - np.mean(y_test)) ** 2)
+
+    # Calculate R-squared
+    r_squared = r2_score(y_test, y_pred_test)
+
+    print(f'beta0: {beta0}')
+    print(f'beta1: {beta1}')
+    print(f'SSE: {sse}')
+    print(f'SST: {sst}')
+    print(f'R-squared: {r_squared}')
+
+    # Plot the actual data points
+    plt.scatter(scaler.inverse_transform(x_test), y_test, color='blue', label='Actual data')
+
+    # Plot the regression line
+    plt.plot(scaler.inverse_transform(x_test), y_pred_test, color='red', linewidth=2, label='Regression line')
+
+    # Add labels and title
+    plt.xlabel('Weekly Gross Sales')
+    plt.ylabel('Monthly Gross Sales')
+    plt.title('Regression Line vs Actual Data')
     plt.legend()
-    plt.title('Net Sales vs. Time for last 7 days')
+
+    # Show the plot
     plt.show()
