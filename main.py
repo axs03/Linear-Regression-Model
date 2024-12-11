@@ -6,7 +6,7 @@ import regression_model as rm
 
 if "__main__" == __name__:
     # load data
-    data = pd.read_csv("TOTALSA.csv")
+    data = pd.read_csv("stacks_data.csv")
 
     x = np.arange(len(data))
     y = data['TOTALSA'].to_numpy()

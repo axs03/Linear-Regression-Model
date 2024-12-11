@@ -162,4 +162,4 @@ cython_debug/
 #.idea/
 
 # private excel data file
-stacks data.xlsx
+stacks_data.xlsx
