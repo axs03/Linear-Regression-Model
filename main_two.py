@@ -17,7 +17,7 @@ data['Time in Seconds'] = (
 )
 
 # Filter data to keep necessary columns and drop NaN values
-filtered_data = data[['Revenue Center', 'Time in Seconds', 'Check Total']].dropna()
+filtered_data = data[['Revenue Center', 'Time in Seconds', 'Check Total', 'Discounts']].dropna()
 
 # Unique revenue centers
 revenue_centers = filtered_data['Revenue Center'].unique()
